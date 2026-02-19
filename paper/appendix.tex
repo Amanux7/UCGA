@@ -1,0 +1,90 @@
+% ====================================================================
+% Appendix: Key Python Implementation Excerpts
+% ====================================================================
+\section{Python Implementation}
+\label{sec:code_appendix}
+
+\subsection{Base Cognitive Node}
+
+The following listing shows the core \texttt{CognitiveNode} class, which all specialised nodes inherit from:
+
+\begin{lstlisting}[caption={CognitiveNode base class}]
+class CognitiveNode(nn.Module):
+    def __init__(self, input_dim, state_dim, name="CognitiveNode"):
+        super().__init__()
+        self.name = name
+        self.input_dim = input_dim
+        self.state_dim = state_dim
+        self.W = nn.Linear(input_dim, state_dim, bias=False)
+        self.b = nn.Parameter(torch.zeros(state_dim))
+        self.register_buffer("state", torch.zeros(1, state_dim))
+
+    def forward(self, inputs):
+        aggregated = torch.stack(inputs, dim=0).sum(dim=0)
+        self.state = torch.tanh(self.W(aggregated) + self.b)
+        return self.state
+
+    def reset_state(self, batch_size=1):
+        self.state = torch.zeros(
+            batch_size, self.state_dim, device=self.b.device
+        )
+\end{lstlisting}
+
+\subsection{UCGA Model Cognitive Loop}
+
+\begin{lstlisting}[caption={UCGAModel forward pass (simplified)}]
+def forward(self, x, return_meta=False):
+    B = x.size(0)
+    self._reset_all(B)
+    memory_bank = self.persistent_memory.get_memory_bank(B)
+
+    for t in range(self.cognitive_steps):
+        percept = self.perception([x])
+        mem_state = self.memory_node([percept], memory_bank)
+        reason_state = self.reasoning([percept, mem_state])
+        plan_state = self.planning([reason_state])
+        eval_state = self.evaluation([plan_state, reason_state])
+        confidence = self.evaluation.get_confidence()
+
+        if confidence.mean().item() < self.correction_threshold:
+            corrected = self.correction([plan_state, eval_state])
+        else:
+            corrected = plan_state
+
+        balanced = self.balancer(
+            [reason_state, corrected, mem_state]
+        )
+        x = balanced  # recurrent refinement
+
+    output = self.output_node([balanced])
+    self.persistent_memory.write(balanced.detach())
+    return output
+\end{lstlisting}
+
+\subsection{Persistent Memory Read}
+
+\begin{lstlisting}[caption={Attention-based memory retrieval}]
+def read(self, query):
+    Q = self.read_query(query).unsqueeze(1)
+    scores = torch.bmm(Q, mem.transpose(1, 2)) / self.attn_scale
+    weights = torch.softmax(scores, dim=-1)
+    retrieved = torch.bmm(weights, mem).squeeze(1)
+    return retrieved
+\end{lstlisting}
+
+\subsection{Cognitive Agent}
+
+\begin{lstlisting}[caption={CognitiveAgent perceive-and-act cycle}]
+@torch.no_grad()
+def perceive_and_act(self, raw_input):
+    self.model.eval()
+    self.encoder.eval()
+    encoded = self.encoder(raw_input.to(self.device))
+    output, meta = self.model(encoded, return_meta=True)
+    self.history.append({
+        "output_norm": output.norm().item(),
+        "confidence": meta["confidences"][-1],
+        "corrections": meta["corrections"],
+    })
+    return {"output": output, "meta": meta}
+\end{lstlisting}
