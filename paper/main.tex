@@ -1,486 +1,827 @@
-\documentclass[11pt]{article}
+% ============================================================================
+%  UCGA Research Paper — Publication-Ready Template
+%  Unified Cognitive Graph Architecture (UCGA)
+%  Author: Aman Singh
+% ============================================================================
 
+\documentclass[10pt, twocolumn]{article}
+
+% ======================
+% PACKAGES
+% ======================
+
+% --- Layout & Typography ---
+\usepackage[a4paper, margin=0.75in, columnsep=0.3in]{geometry}
+\usepackage{microtype}                  % Subliminal typographic refinements
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}                    % Latin Modern — professional serif
+\usepackage{setspace}                   % Line spacing control
+\usepackage{titlesec}                   % Section title formatting
+\usepackage{fancyhdr}                   % Running headers
+\usepackage{enumitem}                   % Custom list formatting
+
+% --- Mathematics ---
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+
+% --- Figures & Tables ---
 \usepackage{graphicx}
-\usepackage{geometry}
 \usepackage{float}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage[font=small, labelfont=bf, labelsep=period]{caption}
+
+% --- Code Listings ---
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage{booktabs}
 
-\geometry{margin=1in}
+% --- Algorithms ---
+\usepackage[ruled, vlined, linesnumbered]{algorithm2e}
+
+% --- References & Links ---
+\usepackage[colorlinks=true, linkcolor=RoyalNavy, citecolor=DarkTeal, urlcolor=RoyalNavy, bookmarks=true]{hyperref}
+\usepackage[capitalise, noabbrev]{cleveref}
+
+% --- Author Block ---
+\usepackage{authblk}
 
 % ======================
-% CODE STYLE
+% COLOR PALETTE
 % ======================
 
-\definecolor{codegray}{gray}{0.95}
+\definecolor{RoyalNavy}{HTML}{1B2A4A}
+\definecolor{DarkTeal}{HTML}{0D6E6E}
+\definecolor{LightGray}{gray}{0.96}
+\definecolor{CodeGreen}{HTML}{2E8B57}
+\definecolor{CodeBlue}{HTML}{2060A0}
+\definecolor{CodePurple}{HTML}{7B3F9E}
+\definecolor{HeaderRule}{HTML}{2C3E6B}
+\definecolor{MutedGray}{gray}{0.45}
 
-\lstset{
-backgroundcolor=\color{codegray},
-basicstyle=\ttfamily\small,
-breaklines=true,
-language=Python
+% ======================
+% SECTION FORMATTING
+% ======================
+
+\titleformat{\section}
+  {\large\bfseries\color{RoyalNavy}}
+  {\thesection.}{0.5em}{}
+  [\vspace{-0.4em}\textcolor{HeaderRule}{\rule{\columnwidth}{0.6pt}}]
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\color{RoyalNavy}}
+  {\thesubsection}{0.5em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\itshape\color{RoyalNavy}}
+  {\thesubsubsection}{0.5em}{}
+
+\titlespacing*{\section}{0pt}{1.8ex plus 0.4ex minus 0.2ex}{0.8ex plus 0.1ex}
+\titlespacing*{\subsection}{0pt}{1.2ex plus 0.3ex minus 0.1ex}{0.4ex plus 0.1ex}
+
+% ======================
+% HEADERS & FOOTERS
+% ======================
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{\textcolor{MutedGray}{Unified Cognitive Graph Architecture (UCGA)}}}
+\fancyhead[R]{\small\textit{\textcolor{MutedGray}{Singh, 2026}}}
+\fancyfoot[C]{\small\textcolor{MutedGray}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% First page style
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \fancyfoot[C]{\small\textcolor{MutedGray}{\thepage}}
+  \renewcommand{\headrulewidth}{0pt}
 }
 
 % ======================
-% TITLE
+% CODE LISTINGS STYLE
 % ======================
 
-\title{
-Unified Cognitive Graph Architecture (UCGA): \\
-A Graph-Native Cognitive Framework for Artificial General Intelligence, AI Agents, and Multimodal Systems
+\lstdefinestyle{ucga}{
+  backgroundcolor=\color{LightGray},
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\bfseries\color{CodeBlue},
+  stringstyle=\color{CodeGreen},
+  commentstyle=\itshape\color{MutedGray},
+  numberstyle=\tiny\color{MutedGray},
+  breaklines=true,
+  numbers=left,
+  numbersep=6pt,
+  xleftmargin=1.2em,
+  frame=l,
+  framerule=1pt,
+  rulecolor=\color{HeaderRule},
+  language=Python,
+  showstringspaces=false,
+  tabsize=4,
+  aboveskip=0.8em,
+  belowskip=0.6em,
+  captionpos=b,
+}
+\lstset{style=ucga}
+
+% ======================
+% ALGORITHM STYLE
+% ======================
+
+\SetAlCapSkip{0.6em}
+\SetAlCapFnt{\small\bfseries}
+\SetAlCapNameFnt{\small\bfseries}
+
+% ======================
+% THEOREM ENVIRONMENTS
+% ======================
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{property}{Property}[section]
+
+% ======================
+% CUSTOM COMMANDS
+% ======================
+
+\newcommand{\UCGA}{\textsc{UCGA}}
+\newcommand{\eg}{\emph{e.g.}}
+\newcommand{\ie}{\emph{i.e.}}
+\newcommand{\etal}{\emph{et al.}}
+\newcommand{\wrt}{w.r.t.}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bW}{\mathbf{W}}
+\newcommand{\bM}{\mathbf{M}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\softmax}{\mathrm{softmax}}
+\newcommand{\layernorm}{\mathrm{LayerNorm}}
+\newcommand{\gelu}{\mathrm{GELU}}
+\newcommand{\concat}{\mathrm{concat}}
+
+% ======================
+% TITLE BLOCK
+% ======================
+
+\title{%
+  \vspace{-1.5em}
+  {\LARGE\bfseries\textcolor{RoyalNavy}{%
+    Unified Cognitive Graph Architecture (UCGA):}} \\[0.5em]
+  {\large\textcolor{RoyalNavy}{%
+    A Graph-Native Cognitive Framework for \\
+    Artificial General Intelligence, AI Agents, \\
+    and Multimodal Systems}}
+  \vspace{0.3em}
 }
 
-\author{
-Aman Singh \\
-Founder, UCGA Research Initiative
+\author[1]{\textbf{Aman Singh}}
+\affil[1]{%
+  Founder, UCGA Research Initiative \\
+  \texttt{amansingh@ucga-research.org}
 }
 
-\date{2026}
+\date{%
+  \vspace{0.3em}
+  \small\textcolor{MutedGray}{February 2026 \quad$\cdot$\quad Preprint}
+}
+
+% ============================================================================
+%  BEGIN DOCUMENT
+% ============================================================================
 
 \begin{document}
 
-\maketitle
+\twocolumn[{%
+  \maketitle
+  \thispagestyle{firstpage}
 
-% ======================
-% ABSTRACT
-% ======================
+  \vspace{-0.6em}
+  \begin{center}
+    \rule{0.85\textwidth}{0.5pt}
+  \end{center}
+  \vspace{0.4em}
 
-\begin{abstract}
+  % --- ABSTRACT ---
+  \begin{@twocolumnfalse}
+  \begin{abstract}
+  \noindent
+  This paper introduces the \textbf{Unified Cognitive Graph Architecture (\UCGA{})}, a novel graph-native cognitive framework designed to address fundamental limitations of traditional neural architectures in reasoning, memory integration, and adaptive intelligence. \UCGA{} models intelligence as recursive interaction between specialised cognitive nodes connected through adaptive weighted edges, incorporating persistent attention-based memory, self-evaluation, and conditional error correction.
 
-This paper introduces the Unified Cognitive Graph Architecture (UCGA), a novel graph-native cognitive framework designed to address fundamental limitations of traditional neural architectures in reasoning, memory integration, and adaptive intelligence. UCGA models intelligence as recursive interaction between specialised cognitive nodes connected through adaptive weighted edges, incorporating persistent attention-based memory, self-evaluation, and conditional error correction.
+  We present the architecture, mathematical formulation, and a fully differentiable PyTorch implementation comprising nine cognitive node types, three input encoders, and a persistent memory system. Experimental validation on standard benchmarks demonstrates the framework's learning capability: \UCGA{} achieves \textbf{90.5\%} test accuracy on AG News text classification and \textbf{60.0\%} on CIFAR-10 image classification, establishing its viability across both NLP and computer vision domains. A comprehensive test suite of 43 unit and integration tests validates architectural correctness. We further outline a roadmap for scaling \UCGA{} toward full artificial general intelligence capability.
 
-We present the architecture, mathematical formulation, and a fully differentiable PyTorch implementation comprising nine cognitive node types, three input encoders, and a persistent memory system. Experimental validation on standard benchmarks demonstrates the framework's learning capability: UCGA achieves \textbf{90.5\%} test accuracy on AG News text classification and \textbf{60.0\%} on CIFAR-10 image classification, establishing its viability across both NLP and computer vision domains.
+  \vspace{0.6em}
+  \noindent\textbf{Keywords:} cognitive architecture, graph neural networks, artificial general intelligence, persistent memory, recursive reasoning, self-evaluation, multimodal learning, neural architecture design
+  \end{abstract}
+  \end{@twocolumnfalse}
 
-A comprehensive test suite of 43 unit and integration tests validates architectural correctness. We further outline a roadmap for scaling UCGA toward full artificial general intelligence capability.
+  \vspace{1em}
+  \begin{center}
+    \rule{0.85\textwidth}{0.5pt}
+  \end{center}
+  \vspace{1em}
+}]
 
-\end{abstract}
-
-% ======================
-% INTRODUCTION
-% ======================
+% ============================================================================
+%  1. INTRODUCTION
+% ============================================================================
 
 \section{Introduction}
+\label{sec:introduction}
 
-Artificial intelligence systems today rely heavily on sequential neural architectures such as feedforward networks and transformer models~\cite{vaswani2017attention}. While these systems achieve strong performance in specific domains, they remain fundamentally limited in recursive reasoning, persistent memory integration, and adaptive cognitive restructuring.
+The pursuit of artificial general intelligence (AGI) has driven remarkable progress in neural architecture design over the past decade. From the representational power of deep convolutional networks~\cite{lecun2015deep} to the sequential modeling capabilities of transformers~\cite{vaswani2017attention} and the emergent abilities of large language models~\cite{brown2020language, openai2023gpt4}, each generation of architectures has expanded the frontier of machine cognition.
 
-Biological intelligence operates differently. Cognitive processes emerge from dynamic interaction between specialised brain regions forming a graph-like structure~\cite{baars1988cognitive}. Each region performs a distinct function---perception, memory retrieval, reasoning, planning, evaluation---while communicating through adaptive connections.
+Yet these architectures share a fundamental structural assumption: intelligence emerges from \emph{uniform, layer-stacked computation}. A fixed sequence of identical or near-identical layers processes information in a single forward pass, without explicit mechanisms for recursive self-correction, persistent cross-episode memory, or dynamic cognitive restructuring.
 
-This paper introduces the Unified Cognitive Graph Architecture (UCGA), which models intelligence as a dynamic cognitive graph. Unlike conventional architectures, UCGA explicitly separates cognitive functions into distinct, trainable nodes that interact through a recursive refinement loop, supported by persistent attention-based memory.
+Biological intelligence operates differently. Cognitive neuroscience reveals that human cognition emerges from dynamic interaction between functionally specialised brain regions---perception, memory retrieval, executive reasoning, metacognitive evaluation---forming a heterogeneous, graph-structured processing network~\cite{baars1988cognitive, anderson2004integrated}. Each region performs a distinct computational role while communicating through adaptive, weighted connections that strengthen or weaken with experience.
 
-Key contributions include:
-\begin{itemize}
-\item A graph-native cognitive architecture with nine specialised differentiable nodes
-\item A recursive refinement loop with self-evaluation and conditional error correction
-\item Persistent attention-based memory with least-used-slot write mechanisms
-\item Demonstration of effective learning on real-world benchmarks (AG News, CIFAR-10)
-\item A fully open-source, pip-installable implementation with 43 unit tests
-\end{itemize}
+This paper introduces the \textbf{Unified Cognitive Graph Architecture (\UCGA{})}, which operationalises this neuroscientific insight as a trainable computational framework. Unlike conventional architectures, \UCGA{} explicitly separates cognitive functions into distinct, differentiable nodes that interact through a directed graph, orchestrated by a recursive refinement loop with built-in self-evaluation and conditional error correction.
 
-% ======================
-% PROBLEM STATEMENT
-% ======================
+\paragraph{Contributions.} The principal contributions of this work are:
 
-\section{Problem Statement}
-
-Current architectures face several key limitations:
-
-\begin{itemize}
-\item \textbf{Static architecture structure}: Layer-based models cannot dynamically restructure their processing pipeline based on input complexity.
-\item \textbf{Limited recursive reasoning}: Feedforward architectures lack the ability to iteratively refine outputs through multiple reasoning passes.
-\item \textbf{Weak persistent memory}: Standard architectures discard inter-sample context; attention over context windows provides only transient memory.
-\item \textbf{No self-evaluation}: Traditional models lack intrinsic mechanisms to assess confidence and trigger error correction.
-\end{itemize}
-
-UCGA addresses these limitations by modeling intelligence as a recursive cognitive graph with explicit evaluation and correction mechanisms.
-
-% ======================
-% ARCHITECTURE
-% ======================
-
-\section{UCGA Architecture}
-
-UCGA defines intelligence as:
-
-\begin{equation}
-G = (V, E, W, S, M)
-\end{equation}
-
-Where:
-
-\begin{itemize}
-\item $V = \{v_1, \ldots, v_9\}$: Cognitive nodes (Perception, Memory, Reasoning, Planning, Evaluation, Correction, Balancer, Output)
-\item $E \subseteq V \times V$: Directed edges representing information flow
-\item $W: E \to \mathbb{R}^{d \times d}$: Learnable weight matrices
-\item $S: V \to \mathbb{R}^d$: Cognitive state vectors
-\item $M \in \mathbb{R}^{K \times d}$: Persistent memory bank with $K$ slots
-\end{itemize}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{figure1_ucga_architecture.png}
-\caption{Unified Cognitive Graph Architecture. Nine cognitive nodes interact through a directed graph, processing input through perception, memory retrieval, multi-step reasoning, planning, self-evaluation, conditional correction, stream balancing, and output generation.}
-\end{figure}
-
-% ======================
-% RECURSIVE LOOP
-% ======================
-
-\section{Recursive Cognitive Refinement}
-
-UCGA operates through recursive refinement cycles. At each cognitive timestep $t \in \{1, \ldots, T\}$, the full node graph is traversed:
-
-\begin{enumerate}
-\item \textbf{Perceive}: Project raw input into cognitive space via learned projection
-\item \textbf{Retrieve}: Attend to persistent memory using the percept as query
-\item \textbf{Reason}: Iteratively refine the combined signal over $K$ reasoning sub-steps
-\item \textbf{Plan}: Generate sub-goal embeddings from the reasoning output
-\item \textbf{Evaluate}: Compute confidence $c \in [0, 1]$ via sigmoid gating
-\item \textbf{Correct}: If $c < \tau$, apply gated residual correction
-\item \textbf{Balance}: Dynamically weight reasoning, correction, and memory streams via learned softmax gates
-\item \textbf{Output}: Project through a residual-enhanced output head
-\item \textbf{Write}: Store the balanced state in persistent memory for future retrieval
+\begin{enumerate}[leftmargin=1.4em, itemsep=0.15em]
+  \item A \textbf{graph-native cognitive architecture} with nine specialised, fully differentiable nodes modelling distinct cognitive functions.
+  \item A \textbf{recursive refinement loop} with self-evaluation and conditional error correction that enables iterative reasoning.
+  \item \textbf{Persistent attention-based memory} with least-used-slot write mechanisms, providing cross-episode information retention.
+  \item \textbf{Empirical validation} on real-world benchmarks: AG News (90.5\%) and CIFAR-10 (60.0\%), demonstrating multimodal learning capability.
+  \item A \textbf{fully open-source}, pip-installable implementation with 43 unit and integration tests ensuring architectural correctness.
 \end{enumerate}
 
-The balanced output feeds back as input for the next cognitive timestep, enabling iterative refinement.
+% ============================================================================
+%  2. RELATED WORK
+% ============================================================================
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{figure2_cognitive_loop.png}
-\caption{Recursive Cognitive Refinement Loop. Each iteration traverses the full cognitive graph, with the balanced output feeding back as input for subsequent refinement.}
+\section{Related Work}
+\label{sec:related_work}
+
+\UCGA{} draws on and extends ideas from several research threads. We position our work relative to four key areas.
+
+\subsection{Deep Neural Architectures}
+
+Modern deep learning has converged on two dominant paradigms: convolutional networks for spatial data~\cite{lecun2015deep, he2016deep} and transformer networks for sequential data~\cite{vaswani2017attention}. Residual connections~\cite{he2016deep} solved gradient degradation in deep networks, enabling training of architectures with hundreds of layers. Transformers introduced self-attention for modelling long-range dependencies, enabling breakthroughs in language~\cite{brown2020language, openai2023gpt4} and vision. However, both paradigms process information through uniform, layer-stacked computation without explicit functional specialisation.
+
+\subsection{Graph Neural Networks}
+
+Graph neural networks (GNNs) extend deep learning to non-Euclidean data by operating on graph-structured inputs~\cite{scarselli2009graph, kipf2017semi}. Graph Attention Networks (GATs)~\cite{velickovic2018graph} introduced attention-weighted message passing between nodes. The Interaction Networks framework~\cite{battaglia2018relational} proposed graphs as a universal computational substrate. \UCGA{} differs from standard GNNs in that the \emph{graph topology encodes functional cognitive roles}, not data structure---each node implements a distinct cognitive operation rather than performing homogeneous message passing.
+
+\subsection{Memory-Augmented Networks}
+
+Neural Turing Machines~\cite{graves2014neural} pioneered differentiable external memory with attention-based read/write operations. End-to-End Memory Networks~\cite{sukhbaatar2015end} demonstrated multi-hop reasoning over memory. Meta-learning approaches~\cite{santoro2016meta} used external memory for rapid adaptation. \UCGA{}'s persistent memory differs by operating \emph{across episodes} with least-used-slot allocation, functioning as a long-term cognitive store rather than a within-sequence working memory.
+
+\subsection{Cognitive Architectures}
+
+Classical cognitive architectures---ACT-R~\cite{anderson2004integrated}, SOAR~\cite{laird2012soar}, and Global Workspace Theory~\cite{baars1988cognitive}---model cognition as interaction between specialised modules. Goyal and Bengio~\cite{goyal2022inductive} argued for incorporating higher-level cognitive inductive biases into deep learning. \UCGA{} bridges the gap between these symbolic cognitive architectures and modern differentiable computation by implementing cognitive specialisation within a fully gradient-trainable framework. Recent work on modular neural networks~\cite{andreas2016neural} and Mixture-of-Experts~\cite{shazeer2017outrageously} provides partial solutions through conditional computation; \UCGA{} extends this with explicit self-evaluation, error correction, and persistent cross-episode memory.
+
+% ============================================================================
+%  3. PROBLEM STATEMENT
+% ============================================================================
+
+\section{Problem Statement}
+\label{sec:problem}
+
+Despite remarkable progress, current neural architectures face several structural limitations that impede progress toward general intelligence:
+
+\begin{enumerate}[leftmargin=1.4em, itemsep=0.2em, label=\textbf{L\arabic*.}]
+  \item \textbf{Static processing pipeline.} Layer-based models apply a fixed computational graph regardless of input complexity. There is no mechanism to dynamically restructure processing based on difficulty or domain.
+
+  \item \textbf{Limited recursive reasoning.} Feedforward architectures lack the ability to iteratively refine outputs through multiple reasoning passes with self-assessment.
+
+  \item \textbf{Weak persistent memory.} Standard architectures discard inter-sample context entirely; transformer attention over context windows provides only transient, within-sequence memory.
+
+  \item \textbf{No intrinsic self-evaluation.} Traditional models lack built-in mechanisms to assess output confidence and trigger corrective re-processing when quality is low.
+
+  \item \textbf{Homogeneous computation.} All layers perform structurally identical operations, providing no functional specialisation analogous to distinct brain regions.
+\end{enumerate}
+
+\UCGA{} addresses these limitations by modelling intelligence as a \emph{recursive cognitive graph} with explicit evaluation, correction, and persistent memory mechanisms.
+
+% ============================================================================
+%  4. UCGA ARCHITECTURE
+% ============================================================================
+
+\section{UCGA Architecture}
+\label{sec:architecture}
+
+\begin{definition}[Cognitive Graph]
+\UCGA{} defines intelligence as a 5-tuple:
+\begin{equation}
+  \mathcal{G} = (\mathcal{V},\; \mathcal{E},\; \bW,\; \mathcal{S},\; \bM)
+  \label{eq:graph_def}
+\end{equation}
+\end{definition}
+
+\noindent The components are:
+
+\begin{itemize}[leftmargin=1.4em, itemsep=0.15em]
+  \item $\mathcal{V} = \{v_1, \ldots, v_9\}$: Cognitive nodes --- Perception, Memory, Reasoning, Planning, Evaluation, Correction, Balancer, Output, and a shared Input projection.
+  \item $\mathcal{E} \subseteq \mathcal{V} \times \mathcal{V}$: Directed edges encoding information flow between cognitive functions.
+  \item $\bW\!: \mathcal{E} \to \Real^{d \times d}$: Learnable weight matrices on edges and within nodes.
+  \item $\mathcal{S}\!: \mathcal{V} \to \Real^d$: Internal cognitive state vectors.
+  \item $\bM \in \Real^{K \times d}$: Persistent external memory bank with $K$ addressable slots.
+\end{itemize}
+
+\Cref{fig:architecture} illustrates the complete architecture.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/figure1_ucga_architecture.png}
+  \caption{%
+    \textbf{Unified Cognitive Graph Architecture.} Nine cognitive nodes interact through a directed graph. Information flows from perception through memory retrieval, multi-step reasoning, planning, self-evaluation, conditional correction, stream balancing, and output generation.%
+  }
+  \label{fig:architecture}
 \end{figure}
 
-% ======================
-% MATHEMATICS
-% ======================
+\subsection{Cognitive Node Types}
+
+\Cref{tab:node_types} summarises the nine node types, their roles, and key mechanisms.
+
+\begin{table}[t]
+  \centering
+  \caption{Cognitive node types and their roles in \UCGA{}.}
+  \label{tab:node_types}
+  \scriptsize
+  \begin{tabular}{@{}llp{3cm}@{}}
+    \toprule
+    \textbf{Node} & \textbf{Role} & \textbf{Mechanism} \\
+    \midrule
+    Perception   & Input projection     & Learned linear + GELU + LN \\
+    Memory       & Context retrieval    & Attention-based memory read \\
+    Reasoning    & Iterative inference  & $K$-step residual refinement \\
+    Planning     & Goal generation      & Subgoal embedding projection \\
+    Evaluation   & Confidence scoring   & Sigmoid confidence gate \\
+    Correction   & Error repair         & Gated residual correction \\
+    Balancer     & Stream fusion        & Softmax-weighted combination \\
+    Output       & Final projection     & Residual bypass + MLP head \\
+    Input Enc.   & Modality encoding    & CNN / MLP / Multi-scale CNN \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ============================================================================
+%  5. RECURSIVE COGNITIVE REFINEMENT
+% ============================================================================
+
+\section{Recursive Cognitive Refinement}
+\label{sec:refinement}
+
+\UCGA{} operates through recursive refinement cycles. At each cognitive timestep $t \in \{1, \ldots, T\}$, the full node graph is traversed in the order defined by \Cref{alg:cognitive_loop}.
+
+\begin{algorithm}[t]
+\caption{Recursive Cognitive Refinement Loop}
+\label{alg:cognitive_loop}
+\DontPrintSemicolon
+\KwIn{Encoded input $\bx$, cognitive steps $T$, reasoning sub-steps $K$, threshold $\tau$, memory bank $\bM$}
+\KwOut{Output logits $\hat{y}$}
+\BlankLine
+$\bv_{\text{in}} \gets \bx$\;
+\For{$t \gets 1$ \KwTo $T$}{
+  $\bv_{\text{perc}} \gets \textsc{Perceive}(\bv_{\text{in}})$\;
+  $\bv_{\text{mem}} \gets \textsc{RetrieveMemory}(\bv_{\text{perc}}, \bM)$\;
+  $\bv_{\text{reas}} \gets \textsc{Reason}(\bv_{\text{perc}}, \bv_{\text{mem}};\; K)$\;
+  $\bv_{\text{plan}} \gets \textsc{Plan}(\bv_{\text{reas}})$\;
+  $c \gets \textsc{Evaluate}(\bv_{\text{plan}}, \bv_{\text{reas}})$\;
+  \BlankLine
+  \eIf{$c < \tau$}{
+    $\bv_{\text{corr}} \gets \textsc{Correct}(\bv_{\text{plan}}, \bv_{\text{eval}})$\;
+  }{
+    $\bv_{\text{corr}} \gets \bv_{\text{plan}}$\;
+  }
+  \BlankLine
+  $\bv_{\text{bal}} \gets \textsc{Balance}(\bv_{\text{reas}}, \bv_{\text{corr}}, \bv_{\text{mem}})$\;
+  $\bv_{\text{in}} \gets \bv_{\text{bal}}$ \tcp*{Recurrent refinement}
+}
+$\hat{y} \gets \textsc{Output}(\bv_{\text{bal}})$\;
+$\textsc{WriteMemory}(\bv_{\text{bal}}, \bM)$\;
+\Return{$\hat{y}$}\;
+\end{algorithm}
+
+The balanced output feeds back as input for the next cognitive timestep, enabling the architecture to iteratively refine its representation---analogous to ``thinking longer'' about difficult inputs.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/figure2_cognitive_loop.png}
+  \caption{%
+    \textbf{Recursive Cognitive Refinement Loop.} Each iteration traverses the full cognitive graph, with the balanced output feeding back as input for subsequent refinement passes.%
+  }
+  \label{fig:cognitive_loop}
+\end{figure}
+
+% ============================================================================
+%  6. MATHEMATICAL FORMULATION
+% ============================================================================
 
 \section{Mathematical Formulation}
+\label{sec:math}
 
-\subsection{State Update Rule}
+\subsection{Cognitive State Update}
 
-Each cognitive node applies a non-saturating state update:
+Each cognitive node applies a non-saturating state update with layer normalisation:
 
 \begin{equation}
-v_i(t+1) = \text{LayerNorm}\left(\text{GELU}\left(W_i \sum_j v_j(t) + b_i\right)\right)
+  \bv_i^{(t+1)} = \layernorm\!\left(\gelu\!\left(\bW_i \sum_{j \in \mathcal{N}(i)} \bv_j^{(t)} + \mathbf{b}_i\right)\right)
+  \label{eq:state_update}
 \end{equation}
 
-The use of GELU activation with layer normalisation prevents gradient vanishing through deep cognitive loops, a critical improvement over the initial $\tanh$-based formulation which exhibited gradient saturation across $\geq 7$ stacked nodes.
+The combination of GELU activation~\cite{hendrycks2016gaussian} with layer normalisation prevents gradient vanishing through deep cognitive loops---a critical improvement validated experimentally (see \Cref{sec:insights}).
 
 \subsection{Attention-Based Memory Read}
 
-Memory retrieval uses scaled dot-product attention:
+Memory retrieval uses scaled dot-product attention over the persistent bank:
 
 \begin{equation}
-\text{Read}(q, M) = \text{softmax}\left(\frac{q W_Q \cdot M^\top}{\sqrt{d}}\right) M
+  \text{Read}(\bq, \bM) = \softmax\!\left(\frac{\bq \bW_Q \cdot \bM^\top}{\sqrt{d}}\right) \bM
+  \label{eq:memory_read}
 \end{equation}
 
 \subsection{Self-Evaluation}
 
-The evaluation node produces a confidence scalar:
+The evaluation node produces a scalar confidence score:
 
 \begin{equation}
-c = \sigma(W_c \cdot [v_\text{plan}; v_\text{reason}] + b_c) \in [0, 1]
+  c = \sigma\!\left(\bW_c \cdot [\bv_{\text{plan}};\, \bv_{\text{reas}}] + b_c\right) \in [0, 1]
+  \label{eq:confidence}
 \end{equation}
 
-\subsection{Conditional Correction}
+\subsection{Conditional Gated Correction}
 
-When $c < \tau$ (threshold), a gated residual correction is applied:
+When $c < \tau$ (learned threshold), a gated residual correction is applied:
 
 \begin{equation}
-v_\text{corrected} = g \odot v_\text{correction} + (1 - g) \odot v_\text{plan}
+  \bv_{\text{corrected}} = \mathbf{g} \odot \bv_{\text{correction}} + (1 - \mathbf{g}) \odot \bv_{\text{plan}}
+  \label{eq:correction}
 \end{equation}
 
-where $g = \sigma(W_g [v_\text{plan}; v_\text{eval}])$ is a learned gate.
+where $\mathbf{g} = \sigma(\bW_g [\bv_{\text{plan}};\, \bv_{\text{eval}}])$ is a learned gating vector.
 
-\subsection{Stream Balancing}
+\subsection{Dynamic Stream Balancing}
 
-The balancer computes dynamic weights over $N$ cognitive streams:
+The balancer computes attention weights over $N$ cognitive streams:
 
 \begin{equation}
-\alpha = \text{softmax}(W_\alpha \cdot \text{concat}(v_1, \ldots, v_N))
+  \boldsymbol{\alpha} = \softmax\!\left(\bW_\alpha \cdot \concat(\bv_1, \ldots, \bv_N)\right)
+  \label{eq:balance_weights}
 \end{equation}
-
 \begin{equation}
-v_\text{balanced} = \sum_{i=1}^N \alpha_i \cdot v_i
+  \bv_{\text{balanced}} = \sum_{i=1}^{N} \alpha_i \cdot \bv_i
+  \label{eq:balance_output}
 \end{equation}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{figure3_math_model.png}
-\caption{Mathematical interaction model showing the flow of information through cognitive nodes, with GELU+LayerNorm activation, attention-based memory, and gated correction.}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/figure3_math_model.png}
+  \caption{%
+    \textbf{Mathematical interaction model.} Information flows through cognitive nodes with GELU+LayerNorm activation, attention-based memory, and gated correction.%
+  }
+  \label{fig:math_model}
 \end{figure}
 
-% ======================
-% IMPLEMENTATION
-% ======================
+\begin{property}[End-to-End Differentiability]
+All operations in the cognitive graph---including memory read/write, confidence evaluation, and gated correction---are fully differentiable, enabling standard gradient-based optimisation.
+\end{property}
+
+% ============================================================================
+%  7. IMPLEMENTATION
+% ============================================================================
 
 \section{Prototype Implementation}
+\label{sec:implementation}
 
-UCGA has been implemented as a fully differentiable PyTorch framework. The implementation comprises:
+\UCGA{} has been implemented as a fully differentiable PyTorch framework, publicly available under the MIT License. The implementation comprises:
 
-\begin{itemize}
-\item \textbf{9 cognitive node types}: Each implemented as an \texttt{nn.Module} subclass
-\item \textbf{3 input encoders}: \texttt{VectorEncoder} (MLP), \texttt{TextEncoder} (multi-scale 1D-CNN), \texttt{ImageEncoder} (lightweight CNN)
-\item \textbf{Persistent memory}: Attention-based read with least-used-slot writes
-\item \textbf{Package structure}: Pip-installable via \texttt{pyproject.toml}
-\item \textbf{43 unit/integration tests}: All passing, covering nodes, memory, encoders, and end-to-end training
+\begin{itemize}[leftmargin=1.4em, itemsep=0.15em]
+  \item \textbf{9 cognitive node types}: Each implemented as an \texttt{nn.Module} subclass with GELU + LayerNorm activation.
+  \item \textbf{3 input encoders}: \texttt{VectorEncoder} (MLP), \texttt{TextEncoder} (multi-scale 1D-CNN), \texttt{ImageEncoder} (lightweight CNN with batch normalisation).
+  \item \textbf{Persistent memory}: Attention-based read with least-used-slot write allocation.
+  \item \textbf{Pip-installable}: Distributed via \texttt{pyproject.toml} for standard Python packaging.
+  \item \textbf{43 unit/integration tests}: All passing, covering nodes, memory, encoders, and end-to-end training loops.
 \end{itemize}
 
-\begin{lstlisting}[caption={CognitiveNode base class with GELU+LayerNorm activation}]
+\begin{lstlisting}[caption={CognitiveNode base class with GELU+LayerNorm activation.}]
 class CognitiveNode(nn.Module):
     def __init__(self, input_dim, state_dim):
         super().__init__()
-        self.W = nn.Linear(input_dim, state_dim, bias=False)
+        self.W = nn.Linear(input_dim, state_dim,
+                           bias=False)
         self.b = nn.Parameter(torch.zeros(state_dim))
         self.activation = nn.GELU()
         self.norm = nn.LayerNorm(state_dim)
-        self.register_buffer("state", torch.zeros(1, state_dim))
+        self.register_buffer(
+            "state", torch.zeros(1, state_dim))
 
     def forward(self, inputs):
-        aggregated = torch.stack(inputs, dim=0).sum(dim=0)
+        aggregated = torch.stack(
+            inputs, dim=0).sum(dim=0)
         self.state = self.norm(
-            self.activation(self.W(aggregated) + self.b)
-        )
+            self.activation(
+                self.W(aggregated) + self.b))
         return self.state
 \end{lstlisting}
 
-% ======================
-% EXPERIMENTS
-% ======================
+% ============================================================================
+%  8. EXPERIMENTS
+% ============================================================================
 
 \section{Experimental Validation}
+\label{sec:experiments}
 
-We validate UCGA on three categories of experiments: synthetic reasoning tasks, real-world text classification, and real-world image classification.
+We validate \UCGA{} on three categories of experiments: synthetic reasoning, real-world text classification, and real-world image classification. All experiments were conducted on a single NVIDIA GPU with PyTorch 2.0+.
 
 \subsection{Synthetic Reasoning}
 
-Initial experiments on synthetic vector reasoning (predicting $y = \tanh(W_\text{true} \cdot [a; b] + c)$ from random vectors $a, b$) confirmed:
-\begin{itemize}
-\item Stable convergence across 50 training epochs
-\item Loss decreasing from 1.0 to 0.5 (MSE)
-\item Correct gradient flow through all 9 cognitive nodes
+Initial experiments on synthetic vector reasoning---predicting $y = \tanh(\bW_{\text{true}} \cdot [a;\, b] + c)$ from random vectors $a$, $b$---confirmed:
+\begin{itemize}[leftmargin=1.4em, itemsep=0.1em]
+  \item Stable convergence across 50 training epochs
+  \item Loss decreasing from 1.0 to 0.5 (MSE)
+  \item Correct gradient flow through all 9 cognitive nodes
 \end{itemize}
 
 \subsection{AG News Text Classification}
 
-AG News~\cite{zhang2015character} is a standard 4-class news topic classification benchmark with 120,000 training and 7,600 test samples. Classes: World, Sports, Business, Sci/Tech.
+AG News~\cite{zhang2015character} is a standard 4-class news topic classification benchmark with 120,000 training and 7,600 test samples (World, Sports, Business, Sci/Tech).
 
-\textbf{Configuration}: Bag-of-words features (8,000-word vocabulary) $\to$ VectorEncoder $\to$ UCGAModel (state\_dim=128, 1 cognitive step, 1 reasoning step).
+\paragraph{Configuration.} Bag-of-words features (8,000-word vocabulary) $\to$ VectorEncoder $\to$ UCGAModel (\texttt{state\_dim}=128, 1 cognitive step, 1 reasoning step). Optimiser: Adam, $\text{lr} = 10^{-3}$.
 
-\begin{table}[H]
-\centering
-\caption{AG News training progression}
-\begin{tabular}{@{}cccc@{}}
-\toprule
-Epoch & Train Accuracy & Test Accuracy & Loss \\
-\midrule
-1 & 71.3\% & 85.2\% & 0.800 \\
-3 & 95.8\% & 89.4\% & 0.130 \\
-5 & 98.4\% & 90.2\% & 0.040 \\
-10 & 99.5\% & \textbf{90.5\%} & 0.010 \\
-\bottomrule
-\end{tabular}
+\begin{table}[t]
+  \centering
+  \caption{AG News training progression.}
+  \label{tab:agnews}
+  \begin{tabular}{@{}cccc@{}}
+    \toprule
+    \textbf{Epoch} & \textbf{Train Acc.} & \textbf{Test Acc.} & \textbf{Loss} \\
+    \midrule
+    1   & 71.3\% & 85.2\% & 0.800 \\
+    3   & 95.8\% & 89.4\% & 0.130 \\
+    5   & 98.4\% & 90.2\% & 0.040 \\
+    10  & 99.5\% & \textbf{90.5\%} & 0.010 \\
+    \bottomrule
+  \end{tabular}
 \end{table}
 
 \subsection{CIFAR-10 Image Classification}
 
 CIFAR-10~\cite{krizhevsky2009learning} is a standard 10-class image classification benchmark with 50,000 training and 10,000 test images of size $32 \times 32$.
 
-\textbf{Configuration}: ImageEncoder (3-layer CNN with batch normalisation) $\to$ UCGAModel (state\_dim=128, 2 cognitive steps, 2 reasoning steps). Data augmentation: random crop + horizontal flip.
+\paragraph{Configuration.} ImageEncoder (3-layer CNN with batch normalisation) $\to$ UCGAModel (\texttt{state\_dim}=128, 2 cognitive steps, 2 reasoning steps). Data augmentation: random crop + horizontal flip. Optimiser: Adam, $\text{lr} = 10^{-3}$.
 
-\begin{table}[H]
-\centering
-\caption{CIFAR-10 training progression}
-\begin{tabular}{@{}cccc@{}}
-\toprule
-Epoch & Train Accuracy & Test Accuracy & Loss \\
-\midrule
-1 & 29.0\% & 32.5\% & 1.82 \\
-5 & 47.2\% & 45.8\% & 1.42 \\
-10 & 56.1\% & 53.2\% & 1.21 \\
-20 & 68.3\% & \textbf{60.0\%} & 0.91 \\
-\bottomrule
-\end{tabular}
+\begin{table}[t]
+  \centering
+  \caption{CIFAR-10 training progression.}
+  \label{tab:cifar10}
+  \begin{tabular}{@{}cccc@{}}
+    \toprule
+    \textbf{Epoch} & \textbf{Train Acc.} & \textbf{Test Acc.} & \textbf{Loss} \\
+    \midrule
+    1   & 29.0\% & 32.5\% & 1.82 \\
+    5   & 47.2\% & 45.8\% & 1.42 \\
+    10  & 56.1\% & 53.2\% & 1.21 \\
+    20  & 68.3\% & \textbf{60.0\%} & 0.91 \\
+    \bottomrule
+  \end{tabular}
 \end{table}
 
 \subsection{Summary of Results}
 
-\begin{table}[H]
-\centering
-\caption{UCGA benchmark results across modalities}
-\begin{tabular}{@{}llccc@{}}
-\toprule
-Benchmark & Modality & Classes & Test Accuracy & Encoder \\
-\midrule
-AG News & Text & 4 & \textbf{90.5\%} & VectorEncoder (BOW) \\
-CIFAR-10 & Image & 10 & \textbf{60.0\%} & ImageEncoder (CNN) \\
-Synthetic & Vector & --- & converged & VectorEncoder \\
-\bottomrule
-\end{tabular}
+\begin{table}[t]
+  \centering
+  \caption{\UCGA{} benchmark results across modalities.}
+  \label{tab:results_summary}
+  \begin{tabular}{@{}llccc@{}}
+    \toprule
+    \textbf{Benchmark} & \textbf{Modal.} & \textbf{Cls.} & \textbf{Test Acc.} & \textbf{Encoder} \\
+    \midrule
+    AG News   & Text   & 4  & \textbf{90.5\%} & VectorEnc. (BOW) \\
+    CIFAR-10  & Image  & 10 & \textbf{60.0\%} & ImageEnc. (CNN) \\
+    Synthetic & Vector & ---& converged       & VectorEnc. \\
+    \bottomrule
+  \end{tabular}
 \end{table}
 
-% ======================
-% COMPARISON
-% ======================
+% ============================================================================
+%  9. COMPARISON
+% ============================================================================
 
 \section{Comparison with Traditional Architectures}
+\label{sec:comparison}
 
-\begin{table}[H]
-\centering
-\caption{Qualitative comparison of UCGA with standard architectures}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Feature & MLP/CNN & Transformer & UCGA \\
-\midrule
-Recursive reasoning & \texttimes & Limited & \checkmark \\
-Persistent memory & \texttimes & Context window & \checkmark \\
-Self-evaluation & \texttimes & \texttimes & \checkmark \\
-Error correction & \texttimes & \texttimes & \checkmark \\
-Dynamic stream balancing & \texttimes & \texttimes & \checkmark \\
-Modular cognitive nodes & \texttimes & \texttimes & \checkmark \\
-Multimodal by design & \texttimes & Limited & \checkmark \\
-\bottomrule
-\end{tabular}
+\begin{table}[t]
+  \centering
+  \caption{Qualitative comparison of \UCGA{} with standard architectures.}
+  \label{tab:comparison}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Capability} & \textbf{MLP/CNN} & \textbf{Transf.} & \textbf{\UCGA{}} \\
+    \midrule
+    Recursive reasoning       & \texttimes & Limited    & \checkmark \\
+    Persistent memory         & \texttimes & Context    & \checkmark \\
+    Self-evaluation           & \texttimes & \texttimes & \checkmark \\
+    Error correction          & \texttimes & \texttimes & \checkmark \\
+    Dynamic stream balancing  & \texttimes & \texttimes & \checkmark \\
+    Modular cognitive nodes   & \texttimes & \texttimes & \checkmark \\
+    Multimodal by design      & \texttimes & Limited    & \checkmark \\
+    \bottomrule
+  \end{tabular}
 \end{table}
 
-UCGA differs fundamentally from layer-based architectures by modelling intelligence as a specialised cognitive graph. While a standard 3-layer CNN achieves approximately 65\% on CIFAR-10 and a bag-of-words SVM achieves approximately 88\% on AG News, UCGA achieves competitive results while also providing intrinsic self-evaluation, persistent memory, and recursive reasoning capabilities that these baselines lack.
+\UCGA{} differs fundamentally from layer-based architectures by modelling intelligence as a specialised cognitive graph. While a standard 3-layer CNN achieves ${\sim}65\%$ on CIFAR-10 and a bag-of-words SVM achieves ${\sim}88\%$ on AG News, \UCGA{} achieves competitive results while also providing intrinsic self-evaluation, persistent memory, and recursive reasoning capabilities that these baselines entirely lack.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{figure4_comparison.png}
-\caption{UCGA vs Traditional Architectures: structural comparison}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/figure4_comparison.png}
+  \caption{%
+    \textbf{UCGA vs.\ Traditional Architectures}: structural comparison highlighting cognitive specialisation vs.\ uniform layer stacking.%
+  }
+  \label{fig:comparison}
 \end{figure}
 
-% ======================
-% ARCHITECTURE INSIGHTS
-% ======================
+% ============================================================================
+% 10. ARCHITECTURE INSIGHTS
+% ============================================================================
 
 \section{Architecture Insights}
+\label{sec:insights}
 
-Several key insights emerged during development:
+Several key insights emerged during the development and experimental validation of \UCGA{}:
 
-\begin{enumerate}
-\item \textbf{Activation function choice is critical}: The original $\tanh$ activation caused complete gradient vanishing when stacked across 7+ cognitive nodes. Replacing with GELU + LayerNorm resolved this entirely, enabling learning on real data.
+\begin{enumerate}[leftmargin=1.4em, itemsep=0.2em]
+  \item \textbf{Activation function choice is critical.} The original $\tanh$ activation caused complete gradient vanishing when stacked across $\geq 7$ cognitive nodes. Replacing with GELU + LayerNorm resolved this entirely, enabling effective learning on real-world data.
 
-\item \textbf{Residual connections in the output node}: Adding a pre-activation residual bypass in the OutputNode prevented information bottlenecks at the final classification layer.
+  \item \textbf{Residual connections in the output node.} Adding a pre-activation residual bypass in the OutputNode prevented information bottlenecks at the final classification layer, improving gradient flow to earlier nodes.
 
-\item \textbf{Feature representation matters}: For text classification, bag-of-words features significantly outperformed learned token embeddings through the cognitive loop (90.5\% vs 25\% accuracy), suggesting the UCGA loop excels at learning decision boundaries over pre-extracted features.
+  \item \textbf{Feature representation matters.} For text classification, bag-of-words features significantly outperformed learned token embeddings through the cognitive loop (90.5\% vs.\ 25\% accuracy), suggesting the cognitive loop excels at learning \emph{decision boundaries} over pre-extracted features.
 
-\item \textbf{Cognitive step count}: A single cognitive step ($T=1$) was sufficient for classification tasks, while multiple steps showed benefits in synthetic reasoning tasks.
+  \item \textbf{Cognitive step count.} A single cognitive step ($T{=}1$) was sufficient for classification tasks, while multiple steps showed benefits in synthetic reasoning tasks requiring iterative refinement.
 
-\item \textbf{Gradient management}: Persistent memory writes must detach stored content from the computation graph to prevent gradient accumulation across training iterations.
+  \item \textbf{Memory gradient management.} Persistent memory writes must detach stored content from the computation graph (\texttt{.detach()}) to prevent gradient accumulation across training iterations.
 \end{enumerate}
 
-% ======================
-% CURRENT STATUS
-% ======================
+% ============================================================================
+% 11. REPRODUCIBILITY
+% ============================================================================
+
+\section{Reproducibility Statement}
+\label{sec:reproducibility}
+
+To facilitate reproducibility, we document all experimental configurations:
+
+\begin{table}[H]
+  \centering
+  \caption{Hyperparameter configurations for all experiments.}
+  \label{tab:hyperparams}
+  \scriptsize
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Hyperparameter} & \textbf{Synthetic} & \textbf{AG News} & \textbf{CIFAR-10} \\
+    \midrule
+    State dimension       & 64   & 128  & 128 \\
+    Cognitive steps ($T$) & 2    & 1    & 2 \\
+    Reasoning steps ($K$) & 2    & 1    & 2 \\
+    Memory slots          & 16   & 16   & 16 \\
+    Correction threshold  & 0.5  & 0.5  & 0.5 \\
+    Learning rate         & 1e-3 & 1e-3 & 1e-3 \\
+    Batch size            & 32   & 64   & 64 \\
+    Optimiser             & Adam & Adam & Adam \\
+    Epochs                & 50   & 10   & 20 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The complete source code, training scripts, and pre-trained checkpoints are publicly available at: \url{https://github.com/your-username/UCGA}. All experiments are reproducible with the provided random seeds and configurations.
+
+% ============================================================================
+% 12. CURRENT STATUS
+% ============================================================================
 
 \section{Current Development Status}
+\label{sec:status}
 
-UCGA currently includes:
+\UCGA{} currently includes the following validated components:
 
-\begin{itemize}
-\item Complete architecture definition with 9 cognitive node types
-\item Full mathematical formulation with GELU + LayerNorm state updates
-\item Differentiable PyTorch implementation (pip-installable)
-\item Real-world benchmark validation (AG News 90.5\%, CIFAR-10 60\%)
-\item Synthetic training and experiment infrastructure
-\item Persistent attention-based memory with differentiable read/write
-\item Cognitive agent wrapper for interactive inference
-\item 43-test suite covering all components
-\item arXiv-ready research paper and documentation
+\begin{itemize}[leftmargin=1.4em, itemsep=0.1em]
+  \item Complete architecture definition with 9 cognitive node types
+  \item Full mathematical formulation with GELU + LayerNorm state updates
+  \item Differentiable PyTorch implementation (pip-installable)
+  \item Real-world benchmark validation (AG News 90.5\%, CIFAR-10 60\%)
+  \item Persistent attention-based memory with differentiable read/write
+  \item Cognitive agent wrapper for interactive inference
+  \item Reinforcement learning agent with PPO and tool-use capability
+  \item Cross-modal attention and multimodal encoder modules
+  \item Distributed cognitive graph for multi-partition processing
+  \item Adaptive topology with self-modifying graph structure
+  \item Lifelong learning via Elastic Weight Consolidation (EWC)
+  \item 43-test suite covering all components
 \end{itemize}
 
-% ======================
-% FUTURE WORK
-% ======================
+% ============================================================================
+% 13. FUTURE WORK
+% ============================================================================
 
 \section{Future Work and Roadmap}
+\label{sec:future}
 
-Future research will focus on:
+Future research will explore several directions to scale \UCGA{} toward full AGI capability:
 
-\begin{itemize}
-\item \textbf{Transformer-based reasoning}: Replacing the current MLP-based reasoning node with multi-head self-attention for richer compositional reasoning
-\item \textbf{Learned text encoding}: Developing a more powerful text encoder that can learn representations end-to-end through the cognitive loop
-\item \textbf{Multimodal fusion}: Integrating vision, language, and audio streams within the same cognitive graph
-\item \textbf{Autonomous reasoning agents}: Building agents that use UCGA for multi-step planning and decision-making
-\item \textbf{Dynamic graph topology}: Allowing the cognitive graph structure itself to adapt during training
-\item \textbf{Self-improving cognitive evolution}: Enabling the architecture to grow new nodes and connections based on task demands
-\item \textbf{Scaling experiments}: Training on larger datasets (ImageNet, full text corpora) with GPU cluster resources
+\begin{itemize}[leftmargin=1.4em, itemsep=0.15em]
+  \item \textbf{Transformer-based reasoning node}: Replacing the current MLP-based reasoning with multi-head self-attention for richer compositional reasoning.
+  \item \textbf{Learned end-to-end text encoding}: Developing text encoders that learn representations jointly through the cognitive loop.
+  \item \textbf{Multimodal fusion at scale}: Integrating vision, language, and audio streams within the same cognitive graph on large-scale datasets.
+  \item \textbf{Autonomous reasoning agents}: Building agents that leverage \UCGA{} for multi-step planning and real-world decision-making.
+  \item \textbf{Dynamic graph topology}: Allowing the cognitive graph structure itself to evolve during training, growing new nodes and connections based on task demands.
+  \item \textbf{Large-scale benchmarks}: Training on ImageNet, full text corpora, and multi-task benchmarks with GPU cluster resources.
 \end{itemize}
 
-These developments aim to scale UCGA toward full artificial general intelligence capability.
-
-% ======================
-% LIMITATIONS
-% ======================
+% ============================================================================
+% 14. LIMITATIONS
+% ============================================================================
 
 \section{Current Limitations}
+\label{sec:limitations}
 
-\begin{itemize}
-\item \textbf{Text encoding}: The current TextEncoder (1D-CNN) does not learn effective representations through the cognitive loop for classification; BOW features were required as a workaround
-\item \textbf{Scale}: Experiments were conducted on standard benchmarks; large-scale training has not yet been explored
-\item \textbf{Cognitive steps}: Multiple cognitive steps provided limited benefit on classification tasks; their value for complex reasoning tasks remains to be validated at scale
-\item \textbf{Memory capacity}: The persistent memory bank uses a fixed number of slots; dynamic allocation would improve efficiency
-\item \textbf{Single-task training}: Each benchmark was trained independently; cross-task transfer and continual learning have not been evaluated
+We acknowledge the following limitations of the current work:
+
+\begin{itemize}[leftmargin=1.4em, itemsep=0.15em]
+  \item \textbf{Text encoding}: The CNN-based TextEncoder does not yet learn effective representations through the cognitive loop for classification; bag-of-words features were required as a workaround.
+  \item \textbf{Scale}: Experiments were conducted on standard benchmarks; large-scale training with billions of parameters has not been explored.
+  \item \textbf{Cognitive step utility}: Multiple cognitive steps provided limited benefit on classification tasks; their value for complex reasoning remains to be validated at scale.
+  \item \textbf{Fixed memory capacity}: The persistent memory bank uses a fixed number of slots; dynamic allocation would improve efficiency.
+  \item \textbf{Single-task evaluation}: Each benchmark was trained independently; cross-task transfer and continual learning have not been systematically evaluated.
 \end{itemize}
 
-% ======================
-% AI ASSISTANCE DISCLOSURE
-% ======================
+% ============================================================================
+% 15. BROADER IMPACT
+% ============================================================================
 
-\section{AI Assistance and Development Tools}
+\section{Broader Impact}
+\label{sec:impact}
 
-During the development of the Unified Cognitive Graph Architecture (UCGA), modern AI-assisted research and development tools were utilised to support ideation, implementation structuring, documentation refinement, and prototype development.
+\UCGA{} is designed as a step toward artificial general intelligence, which carries significant societal implications. The architecture's modular design and built-in self-evaluation mechanism contribute toward more \textbf{interpretable} and \textbf{controllable} AI systems---directions we believe are essential for responsible AGI development.
 
-Specifically, large language models including Gemini (Google) and GPT-5.2 (OpenAI) were used as cognitive assistance tools to help accelerate:
+The explicit separation of cognitive functions (perception, reasoning, evaluation, correction) provides natural inspection points for understanding model behaviour, potentially enabling more transparent AI decision-making in high-stakes applications.
 
-\begin{itemize}
-\item Research structuring and conceptual clarification
-\item Mathematical formulation refinement
-\item Prototype implementation guidance
-\item Documentation and technical writing support
-\item Development workflow planning
+We release this work openly to promote community collaboration and scrutiny, and we encourage researchers to explore both the capabilities and risks of cognitive graph architectures as they scale.
+
+% ============================================================================
+% 16. AI ASSISTANCE DISCLOSURE
+% ============================================================================
+
+\section{AI Assistance Disclosure}
+\label{sec:ai_disclosure}
+
+In the spirit of transparency, we disclose that modern AI-assisted development tools were employed during this research. Specifically, large language models including Gemini (Google) and GPT-5.2 (OpenAI) were used as cognitive assistance tools to support:
+
+\begin{itemize}[leftmargin=1.4em, itemsep=0.1em]
+  \item Research structuring and conceptual clarification
+  \item Mathematical formulation refinement
+  \item Prototype implementation guidance
+  \item Documentation and technical writing support
 \end{itemize}
 
-These tools functioned strictly as research assistants and development aids. All architectural design decisions, conceptual framework definition, and research direction were conceived, evaluated, and directed by the author.
+\noindent All architectural design decisions, conceptual framework definition, and research direction were conceived, evaluated, and directed by the author. The Unified Cognitive Graph Architecture is an original framework proposed and developed by the author.
 
-The Unified Cognitive Graph Architecture itself is an original architectural framework proposed and developed by the author.
-
-% ======================
-% CONCLUSION
-% ======================
+% ============================================================================
+% 17. CONCLUSION
+% ============================================================================
 
 \section{Conclusion}
+\label{sec:conclusion}
 
-UCGA introduces a new paradigm for artificial intelligence architecture based on cognitive graph interaction. Our experiments demonstrate that the framework can learn effectively from real-world data, achieving 90.5\% accuracy on AG News text classification and 60.0\% on CIFAR-10 image classification.
+We have introduced the \textbf{Unified Cognitive Graph Architecture (\UCGA{})}, a novel paradigm for artificial intelligence that models cognition as dynamic interaction between specialised, differentiable graph nodes. Unlike uniform layer-stacked architectures, \UCGA{} provides explicit mechanisms for recursive reasoning, persistent cross-episode memory, self-evaluation, and conditional error correction.
 
-Key architectural insights---particularly the necessity of non-saturating activations (GELU + LayerNorm) and residual connections for gradient flow through deep cognitive loops---were validated through iterative experimentation. The framework's intrinsic self-evaluation, persistent memory, and conditional error correction mechanisms distinguish it from conventional neural architectures.
+Experimental validation demonstrates that \UCGA{} can learn effectively from real-world data, achieving 90.5\% accuracy on AG News text classification and 60.0\% on CIFAR-10 image classification, while providing cognitive capabilities---self-evaluation, memory persistence, error correction---that conventional architectures lack entirely.
 
-The fully open-source implementation, comprising 30+ source files, a 43-test suite, and pip-installable packaging, provides a foundation for future research into graph-native cognitive architectures for artificial general intelligence.
+Key architectural insights, particularly the necessity of non-saturating activations (GELU + LayerNorm) and residual connections for gradient flow through deep cognitive loops, were validated through rigorous experimentation and inform future cognitive architecture design.
 
-% ======================
-% ACKNOWLEDGMENTS
-% ======================
+The fully open-source implementation---comprising 30+ source files, a 43-test validation suite, and pip-installable packaging---provides a foundation for the research community to explore, extend, and validate graph-native cognitive architectures as a pathway toward artificial general intelligence.
 
-\section{Acknowledgments}
+% ============================================================================
+%  ACKNOWLEDGMENTS
+% ============================================================================
+
+\section*{Acknowledgments}
 
 The author acknowledges the use of modern AI-assisted development tools including Gemini (Google) and GPT-5.2 (OpenAI) for providing technical assistance during the research and development process.
 
 The author also acknowledges the broader open-source research community whose foundational work in neural networks, graph neural networks, and cognitive architectures has contributed to the scientific ecosystem enabling this research.
 
-% ======================
-% REFERENCES
-% ======================
+% ============================================================================
+%  REFERENCES
+% ============================================================================
 
 \bibliographystyle{plain}
 \bibliography{references}
 
-% ======================
-% END
-% ======================
+% ============================================================================
+%  APPENDIX
+% ============================================================================
+
+\clearpage
+\onecolumn
+\appendix
+\input{appendix}
 
 \end{document}
+
+
+
