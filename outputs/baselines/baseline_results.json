@@ -1,0 +1,50 @@
+{
+  "MLP-3L": {
+    "params": 1843210,
+    "params_fmt": "1.84M",
+    "flops": 3680256,
+    "flops_fmt": "3.68M",
+    "fwd_ms": "0.4",
+    "acc_mean": 0.4731,
+    "acc_std": 0.0,
+    "conv_mean": 1.0,
+    "conv_std": 0.0,
+    "time_per_epoch": 20.002834876378376
+  },
+  "CNN-Light": {
+    "params": 37914,
+    "params_fmt": "37.9K",
+    "flops": 1541120,
+    "flops_fmt": "1.54M",
+    "fwd_ms": "2.4",
+    "acc_mean": 0.4732,
+    "acc_std": 0.0,
+    "conv_mean": 1.0,
+    "conv_std": 0.0,
+    "time_per_epoch": 23.875818014144897
+  },
+  "ViT-Tiny": {
+    "params": 5362762,
+    "params_fmt": "5.36M",
+    "flops": 11800320,
+    "flops_fmt": "11.80M",
+    "fwd_ms": "14.7",
+    "acc_mean": 0.4037,
+    "acc_std": 0.0,
+    "conv_mean": 1.0,
+    "conv_std": 0.0,
+    "time_per_epoch": 462.0986325740814
+  },
+  "UCGA": {
+    "params": 784782,
+    "params_fmt": "784.8K",
+    "flops": 7200000,
+    "flops_fmt": "7.20M",
+    "fwd_ms": "7.8",
+    "acc_mean": 0.5179,
+    "acc_std": 0.0,
+    "conv_mean": 1.0,
+    "conv_std": 0.0,
+    "time_per_epoch": 43.776254653930664
+  }
+}
