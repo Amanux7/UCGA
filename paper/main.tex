@@ -209,9 +209,9 @@
   \begin{@twocolumnfalse}
   \begin{abstract}
   \noindent
-  This paper introduces the \textbf{Unified Cognitive Graph Architecture (\UCGA{})}, a novel graph-native cognitive framework designed to address fundamental limitations of traditional neural architectures in reasoning, memory integration, and adaptive intelligence. \UCGA{} models intelligence as recursive interaction between specialised cognitive nodes connected through adaptive weighted edges, incorporating persistent attention-based memory, self-evaluation, and conditional error correction.
+  This paper introduces the \textbf{Unified Cognitive Graph Architecture (\UCGA{})}, a novel graph-native cognitive framework designed to address fundamental limitations of traditional neural architectures in reasoning, memory integration, and adaptive intelligence. \UCGA{} has been extended into a full AGI-ready cognitive architecture implementing seven core intelligence layers inspired by cognitive science, neuroscience, and modern AI systems.
 
-  We present the architecture, mathematical formulation, and a fully differentiable PyTorch implementation comprising nine cognitive node types, three input encoders, and a persistent memory system. Experimental validation on standard benchmarks demonstrates the framework's learning capability: \UCGA{} achieves \textbf{90.5\%} test accuracy on AG News text classification and \textbf{60.0\%} on CIFAR-10 image classification, establishing its viability across both NLP and computer vision domains. A comprehensive test suite of 43 unit and integration tests validates architectural correctness. We further outline a roadmap for scaling \UCGA{} toward full artificial general intelligence capability.
+  We present the architecture, mathematical formulation, and a fully differentiable PyTorch implementation comprising seven intelligence layers: Perception, Cognitive Graph, Working Memory, Reasoning, Global Workspace, Executive Controller, and Action. Experimental validation on standard benchmarks demonstrates the framework's learning capability: \UCGA{} achieves \textbf{90.5\%} test accuracy on AG News text classification and \textbf{60.0\%} on CIFAR-10 image classification, establishing its viability across both NLP and computer vision domains. A comprehensive test suite of 43 unit and integration tests validates architectural correctness. We further outline a roadmap for scaling \UCGA{} toward full artificial general intelligence capability.
 
   \vspace{0.6em}
   \noindent\textbf{Keywords:} cognitive architecture, graph neural networks, artificial general intelligence, persistent memory, recursive reasoning, self-evaluation, multimodal learning, neural architecture design
@@ -243,7 +243,7 @@ This paper introduces the \textbf{Unified Cognitive Graph Architecture (\UCGA{})
 \paragraph{Contributions.} The principal contributions of this work are:
 
 \begin{enumerate}[leftmargin=1.4em, itemsep=0.15em]
-  \item A \textbf{graph-native cognitive architecture} with nine specialised, fully differentiable nodes modelling distinct cognitive functions.
+  \item A \textbf{graph-native cognitive architecture} with seven core intelligence layers modelling distinct cognitive functions.
   \item A \textbf{recursive refinement loop} with self-evaluation and conditional error correction that enables iterative reasoning.
   \item \textbf{Persistent attention-based memory} with least-used-slot write mechanisms, providing cross-episode information retention.
   \item \textbf{Empirical validation} on real-world benchmarks: AG News (90.5\%) and CIFAR-10 (60.0\%), demonstrating multimodal learning capability.
@@ -316,8 +316,8 @@ Despite remarkable progress, current neural architectures face several structura
 \noindent The components are:
 
 \begin{itemize}[leftmargin=1.4em, itemsep=0.15em]
-  \item $\mathcal{V} = \{v_1, \ldots, v_9\}$: Cognitive nodes --- Perception, Memory, Reasoning, Planning, Evaluation, Correction, Balancer, Output, and a shared Input projection.
-  \item $\mathcal{E} \subseteq \mathcal{V} \times \mathcal{V}$: Directed edges encoding information flow between cognitive functions.
+  \item $\mathcal{V} = \{v_1, \ldots, v_7\}$: Intelligence layers --- Perception, Cognitive Graph, Working Memory, Reasoning, Global Workspace, Executive Controller, and Action.
+  \item $\mathcal{E} \subseteq \mathcal{V} \times \mathcal{V}$: Directed edges encoding information flow between cognitive layers.
   \item $\bW\!: \mathcal{E} \to \Real^{d \times d}$: Learnable weight matrices on edges and within nodes.
   \item $\mathcal{S}\!: \mathcal{V} \to \Real^d$: Internal cognitive state vectors.
   \item $\bM \in \Real^{K \times d}$: Persistent external memory bank with $K$ addressable slots.
@@ -345,17 +345,15 @@ Despite remarkable progress, current neural architectures face several structura
   \scriptsize
   \begin{tabular}{@{}llp{3cm}@{}}
     \toprule
-    \textbf{Node} & \textbf{Role} & \textbf{Mechanism} \\
+    \textbf{Layer} & \textbf{Role} & \textbf{Mechanism} \\
     \midrule
-    Perception   & Input projection     & Learned linear + GELU + LN \\
-    Memory       & Context retrieval    & Attention-based memory read \\
-    Reasoning    & Iterative inference  & $K$-step residual refinement \\
-    Planning     & Goal generation      & Subgoal embedding projection \\
-    Evaluation   & Confidence scoring   & Sigmoid confidence gate \\
-    Correction   & Error repair         & Gated residual correction \\
-    Balancer     & Stream fusion        & Softmax-weighted combination \\
-    Output       & Final projection     & Residual bypass + MLP head \\
-    Input Enc.   & Modality encoding    & CNN / MLP / Multi-scale CNN \\
+    Perception          & Multimodal inputs    & Text, image, audio, sensor processing \\
+    Cognitive Graph     & Knowledge structure  & Explicit nodes \& persistent memory \\
+    Working Memory      & Temporary memory     & Active context \& goals \\
+    Reasoning           & Inference engine     & Graph-based \& recursive reasoning \\
+    Global Workspace    & Attention            & Broadcast \& coordination system \\
+    Executive Controller& Decision making      & Goal management \& planning \\
+    Action              & Execution            & Response generation \& tool usage \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -367,38 +365,29 @@ Despite remarkable progress, current neural architectures face several structura
 \section{Recursive Cognitive Refinement}
 \label{sec:refinement}
 
-\UCGA{} operates through recursive refinement cycles. At each cognitive timestep $t \in \{1, \ldots, T\}$, the full node graph is traversed in the order defined by \Cref{alg:cognitive_loop}.
+\UCGA{} operates through a continuous cognitive loop. At each timestep $t$, information flows through the architecture according to the AGI Cognitive Cycle defined in \Cref{alg:cognitive_cycle}.
 
 \begin{algorithm}[t]
-\caption{Recursive Cognitive Refinement Loop}
-\label{alg:cognitive_loop}
+\caption{AGI Cognitive Cycle}
+\label{alg:cognitive_cycle}
 \DontPrintSemicolon
-\KwIn{Encoded input $\bx$, cognitive steps $T$, reasoning sub-steps $K$, threshold $\tau$, memory bank $\bM$}
-\KwOut{Output logits $\hat{y}$}
+\KwIn{Environment state $\bx$, persistent memory $\bM$, cognitive graph $\mathcal{G}$}
+\KwOut{Action sequence $\hat{a}$, updated graph $\mathcal{G}'$}
 \BlankLine
-$\bv_{\text{in}} \gets \bx$\;
 \For{$t \gets 1$ \KwTo $T$}{
-  $\bv_{\text{perc}} \gets \textsc{Perceive}(\bv_{\text{in}})$\;
-  $\bv_{\text{mem}} \gets \textsc{RetrieveMemory}(\bv_{\text{perc}}, \bM)$\;
-  $\bv_{\text{reas}} \gets \textsc{Reason}(\bv_{\text{perc}}, \bv_{\text{mem}};\; K)$\;
-  $\bv_{\text{plan}} \gets \textsc{Plan}(\bv_{\text{reas}})$\;
-  $c \gets \textsc{Evaluate}(\bv_{\text{plan}}, \bv_{\text{reas}})$\;
-  \BlankLine
-  \eIf{$c < \tau$}{
-    $\bv_{\text{corr}} \gets \textsc{Correct}(\bv_{\text{plan}}, \bv_{\text{eval}})$\;
-  }{
-    $\bv_{\text{corr}} \gets \bv_{\text{plan}}$\;
-  }
-  \BlankLine
-  $\bv_{\text{bal}} \gets \textsc{Balance}(\bv_{\text{reas}}, \bv_{\text{corr}}, \bv_{\text{mem}})$\;
-  $\bv_{\text{in}} \gets \bv_{\text{bal}}$ \tcp*{Recurrent refinement}
+  $\bv_{\text{perc}} \gets \textsc{Perceive}(\bx)$\;
+  $\bv_{\text{wm}} \gets \textsc{UpdateWorkingMemory}(\bv_{\text{perc}})$\;
+  $\bv_{\text{graph}} \gets \textsc{ActivateCognitiveGraph}(\bv_{\text{wm}}, \mathcal{G})$\;
+  $\bv_{\text{reas}} \gets \textsc{PerformReasoning}(\bv_{\text{graph}})$\;
+  $\bv_{\text{goals}} \gets \textsc{GenerateGoals}(\bv_{\text{reas}})$\;
+  $\bv_{\text{plan}} \gets \textsc{PlanActions}(\bv_{\text{goals}})$\;
+  $\hat{a} \gets \textsc{ExecuteActions}(\bv_{\text{plan}})$\;
+  $\mathcal{G}' \gets \textsc{LearnAndUpdateGraph}(\mathcal{G}, \hat{a})$\;
 }
-$\hat{y} \gets \textsc{Output}(\bv_{\text{bal}})$\;
-$\textsc{WriteMemory}(\bv_{\text{bal}}, \bM)$\;
-\Return{$\hat{y}$}\;
+\Return{$\hat{a}, \mathcal{G}'$}\;
 \end{algorithm}
 
-The balanced output feeds back as input for the next cognitive timestep, enabling the architecture to iteratively refine its representation---analogous to ``thinking longer'' about difficult inputs.
+The action output feeds back as environmental state, and the updated knowledge graph becomes the basis for the next cognitive cycle, enabling the architecture to iteratively learn and adapt.
 
 \begin{figure}[t]
   \centering
@@ -492,7 +481,7 @@ All operations in the cognitive graph---including memory read/write, confidence 
 \UCGA{} has been implemented as a fully differentiable PyTorch framework, publicly available under the MIT License. The implementation comprises:
 
 \begin{itemize}[leftmargin=1.4em, itemsep=0.15em]
-  \item \textbf{9 cognitive node types}: Each implemented as an \texttt{nn.Module} subclass with GELU + LayerNorm activation.
+  \item \textbf{7 core intelligence layers}: Implemented via specialized \texttt{nn.Module} subclasses for each layer (Perception, Working Memory, etc.).
   \item \textbf{3 input encoders}: \texttt{VectorEncoder} (MLP), \texttt{TextEncoder} (multi-scale 1D-CNN), \texttt{ImageEncoder} (lightweight CNN with batch normalisation).
   \item \textbf{Persistent memory}: Attention-based read with least-used-slot write allocation.
   \item \textbf{Pip-installable}: Distributed via \texttt{pyproject.toml} for standard Python packaging.
@@ -700,7 +689,7 @@ The complete source code, training scripts, and pre-trained checkpoints are publ
 \UCGA{} currently includes the following validated components:
 
 \begin{itemize}[leftmargin=1.4em, itemsep=0.1em]
-  \item Complete architecture definition with 9 cognitive node types
+  \item Complete AGI-ready architecture with 7 core intelligence layers
   \item Full mathematical formulation with GELU + LayerNorm state updates
   \item Differentiable PyTorch implementation (pip-installable)
   \item Real-world benchmark validation (AG News 90.5\%, CIFAR-10 60\%)
@@ -822,6 +811,3 @@ The author also acknowledges the broader open-source research community whose fo
 \input{appendix}
 
 \end{document}
-
-
-

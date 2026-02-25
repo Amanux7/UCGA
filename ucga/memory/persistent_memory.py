@@ -99,8 +99,9 @@ class PersistentMemory(nn.Module):
         write_val = gate * projected
 
         # Scatter write — detach to prevent graph accumulation
+        # Cast to memory dtype for AMP compatibility (float16 → float32)
         idx_exp = idx.unsqueeze(1).unsqueeze(2).expand(-1, 1, self.slot_dim)
-        mem.scatter_(1, idx_exp, write_val.detach().unsqueeze(1))
+        mem.scatter_(1, idx_exp, write_val.detach().to(mem.dtype).unsqueeze(1))
 
         # Update usage
         usage.scatter_(1, idx.unsqueeze(1), usage.gather(1, idx.unsqueeze(1)) + 1)

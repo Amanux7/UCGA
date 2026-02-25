@@ -1,86 +1,161 @@
-% ====================================================================
-% Appendix: Key Python Implementation Excerpts
-% ====================================================================
-\section{Python Implementation}
+% ============================================================================
+%  Appendix — Key Implementation Details & Hyperparameters
+% ============================================================================
+
+\section{Full Node Interface Specification}
+\label{sec:node_interfaces}
+
+\Cref{tab:node_interfaces} provides a complete specification of input/output interfaces for all cognitive nodes in \UCGA{}.
+
+\begin{table*}[t]
+  \centering
+  \caption{Complete node interface specification for all \UCGA{} cognitive nodes.}
+  \label{tab:node_interfaces}
+  \small
+  \begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Node} & \textbf{Input(s)} & \textbf{Output} & \textbf{Parameters} & \textbf{Special Mechanism} \\
+    \midrule
+    PerceptionNode  & Raw encoded input $\bx$                         & $\bv_{\text{perc}} \in \Real^d$  & $\bW_p, \mathbf{b}_p$            & GELU + LayerNorm \\
+    MemoryNode      & $\bv_{\text{perc}}$, memory bank $\bM$          & $\bv_{\text{mem}} \in \Real^d$   & $\bW_Q$, $\bW_{\text{agg}}$      & Scaled dot-product attention \\
+    ReasoningNode   & $\bv_{\text{perc}}$, $\bv_{\text{mem}}$          & $\bv_{\text{reas}} \in \Real^d$  & $\bW_r^{(1..K)}$, $\mathbf{b}_r$ & $K$-step residual refinement \\
+    PlanningNode    & $\bv_{\text{reas}}$                              & $\bv_{\text{plan}} \in \Real^d$  & $\bW_{\text{plan}}$               & Subgoal embedding \\
+    EvaluationNode  & $\bv_{\text{plan}}$, $\bv_{\text{reas}}$         & $c \in [0,1]$, $\bv_{\text{eval}} \in \Real^d$ & $\bW_c$, $b_c$ & Sigmoid confidence gate \\
+    CorrectionNode  & $\bv_{\text{plan}}$, $\bv_{\text{eval}}$         & $\bv_{\text{corr}} \in \Real^d$  & $\bW_g$, $\bW_{\text{corr}}$      & Gated residual correction \\
+    BalancerNode    & $\bv_{\text{reas}}$, $\bv_{\text{corr}}$, $\bv_{\text{mem}}$ & $\bv_{\text{bal}} \in \Real^d$ & $\bW_\alpha$ & Softmax-weighted fusion \\
+    OutputNode      & $\bv_{\text{bal}}$                               & $\hat{y} \in \Real^C$            & $\bW_{\text{out}}^{(1,2)}$        & Residual bypass + MLP \\
+    PersistentMemory & $\bv_{\text{bal}}$ (write), $\bq$ (read)        & Retrieved $\bv \in \Real^d$      & $\bW_Q$                           & Least-used-slot write \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+% ============================================================================
+
+\section{Python Implementation Excerpts}
 \label{sec:code_appendix}
 
 \subsection{Base Cognitive Node}
 
-The following listing shows the core \texttt{CognitiveNode} class, which all specialised nodes inherit from:
+The following listing shows the core \texttt{CognitiveNode} class with GELU + LayerNorm activation, which all specialised nodes inherit from:
 
-\begin{lstlisting}[caption={CognitiveNode base class}]
+\begin{lstlisting}[caption={CognitiveNode base class (GELU + LayerNorm).}]
 class CognitiveNode(nn.Module):
-    def __init__(self, input_dim, state_dim, name="CognitiveNode"):
+    def __init__(self, input_dim, state_dim,
+                 name="CognitiveNode"):
         super().__init__()
         self.name = name
         self.input_dim = input_dim
         self.state_dim = state_dim
-        self.W = nn.Linear(input_dim, state_dim, bias=False)
+        self.W = nn.Linear(input_dim, state_dim,
+                           bias=False)
         self.b = nn.Parameter(torch.zeros(state_dim))
-        self.register_buffer("state", torch.zeros(1, state_dim))
+        self.activation = nn.GELU()
+        self.norm = nn.LayerNorm(state_dim)
+        self.register_buffer(
+            "state", torch.zeros(1, state_dim))
 
     def forward(self, inputs):
-        aggregated = torch.stack(inputs, dim=0).sum(dim=0)
-        self.state = torch.tanh(self.W(aggregated) + self.b)
+        aggregated = torch.stack(
+            inputs, dim=0).sum(dim=0)
+        self.state = self.norm(
+            self.activation(
+                self.W(aggregated) + self.b))
         return self.state
 
     def reset_state(self, batch_size=1):
-        self.state = torch.zeros(
-            batch_size, self.state_dim, device=self.b.device
-        )
+        with torch.no_grad():
+            self.state = torch.zeros(
+                batch_size, self.state_dim,
+                device=self.b.device)
 \end{lstlisting}
 
 \subsection{UCGA Model Cognitive Loop}
 
-\begin{lstlisting}[caption={UCGAModel forward pass (simplified)}]
+\begin{lstlisting}[caption={UCGAModel forward pass (simplified).}]
 def forward(self, x, return_meta=False):
     B = x.size(0)
     self._reset_all(B)
-    memory_bank = self.persistent_memory.get_memory_bank(B)
+    memory_bank = self.persistent_memory \
+        .get_memory_bank(B)
 
     for t in range(self.cognitive_steps):
         percept = self.perception([x])
-        mem_state = self.memory_node([percept], memory_bank)
-        reason_state = self.reasoning([percept, mem_state])
-        plan_state = self.planning([reason_state])
-        eval_state = self.evaluation([plan_state, reason_state])
-        confidence = self.evaluation.get_confidence()
+        mem_state = self.memory_node(
+            [percept], memory_bank)
+        reason_state = self.reasoning(
+            [percept, mem_state])
+        plan_state = self.planning(
+            [reason_state])
+        eval_state = self.evaluation(
+            [plan_state, reason_state])
+        confidence = self.evaluation \
+            .get_confidence()
 
-        if confidence.mean().item() < self.correction_threshold:
-            corrected = self.correction([plan_state, eval_state])
+        if confidence.mean().item() \
+                < self.correction_threshold:
+            corrected = self.correction(
+                [plan_state, eval_state])
         else:
             corrected = plan_state
 
         balanced = self.balancer(
-            [reason_state, corrected, mem_state]
-        )
+            [reason_state, corrected, mem_state])
         x = balanced  # recurrent refinement
 
     output = self.output_node([balanced])
-    self.persistent_memory.write(balanced.detach())
+    self.persistent_memory.write(
+        balanced.detach())
     return output
 \end{lstlisting}
 
 \subsection{Persistent Memory Read}
 
-\begin{lstlisting}[caption={Attention-based memory retrieval}]
+\begin{lstlisting}[caption={Attention-based memory retrieval.}]
 def read(self, query):
+    B = query.size(0)
+    mem = self._expand_memory(B)
     Q = self.read_query(query).unsqueeze(1)
-    scores = torch.bmm(Q, mem.transpose(1, 2)) / self.attn_scale
+    scores = torch.bmm(
+        Q, mem.transpose(1, 2)) / self.attn_scale
     weights = torch.softmax(scores, dim=-1)
-    retrieved = torch.bmm(weights, mem).squeeze(1)
+    retrieved = torch.bmm(
+        weights, mem).squeeze(1)
     return retrieved
+\end{lstlisting}
+
+\subsection{Output Node with Residual Bypass}
+
+\begin{lstlisting}[caption={OutputNode with residual connection.}]
+class OutputNode(CognitiveNode):
+    def __init__(self, state_dim, output_dim):
+        super().__init__(
+            input_dim=state_dim,
+            state_dim=state_dim)
+        self.output_head = nn.Sequential(
+            nn.Linear(state_dim, state_dim),
+            nn.GELU(),
+            nn.Linear(state_dim, output_dim),
+        )
+
+    def forward(self, inputs):
+        aggregated = torch.stack(
+            inputs, dim=0).sum(dim=0)
+        h = super().forward(inputs)
+        combined = h + aggregated  # residual
+        return self.output_head(combined)
 \end{lstlisting}
 
 \subsection{Cognitive Agent}
 
-\begin{lstlisting}[caption={CognitiveAgent perceive-and-act cycle}]
+\begin{lstlisting}[caption={CognitiveAgent perceive-and-act cycle.}]
 @torch.no_grad()
 def perceive_and_act(self, raw_input):
     self.model.eval()
     self.encoder.eval()
-    encoded = self.encoder(raw_input.to(self.device))
-    output, meta = self.model(encoded, return_meta=True)
+    encoded = self.encoder(
+        raw_input.to(self.device))
+    output, meta = self.model(
+        encoded, return_meta=True)
     self.history.append({
         "output_norm": output.norm().item(),
         "confidence": meta["confidences"][-1],
@@ -88,3 +163,24 @@ def perceive_and_act(self, raw_input):
     })
     return {"output": output, "meta": meta}
 \end{lstlisting}
+
+% ============================================================================
+
+\section{Encoder Architectures}
+\label{sec:encoder_details}
+
+\begin{table}[H]
+  \centering
+  \caption{Input encoder configurations.}
+  \label{tab:encoders}
+  \small
+  \begin{tabular}{@{}llp{4.5cm}@{}}
+    \toprule
+    \textbf{Encoder} & \textbf{Input Type} & \textbf{Architecture} \\
+    \midrule
+    VectorEncoder  & Dense vector  & 2-layer MLP with GELU activation \\
+    TextEncoder    & Token indices & Multi-scale 1D CNN (kernel sizes 3, 5, 7) with max pooling \\
+    ImageEncoder   & $3 \times 32 \times 32$ & 3-layer CNN with batch normalisation, adaptive average pooling \\
+    \bottomrule
+  \end{tabular}
+\end{table}
