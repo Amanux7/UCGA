@@ -18,7 +18,7 @@ Unlike traditional architectures that process information uniformly through stac
 
 ### Key Innovations (Breakthroughs)
 
-- **Graph-Structured Cognition:** 9 specialised, fully differentiable nodes modelling distinct cognitive functions connected as a directed graph.
+- **AGI Architecture Layers:** 7 core intelligence layers (Perception, Cognitive Graph, Working Memory, Reasoning, Global Workspace, Executive Controller, Action) connected as a dynamic cognitive system.
 - **Recursive Cognitive Refinement:** A cognitive loop that iterates *T* times, progressively refining understanding and "thinking longer" about hard problems.
 - **Persistent Differentiable Memory:** Attention-based cross-episode memory bank retaining long-term cognitive store rather than just within-window attention.
 - **Self-Evaluation & Correction:** A built-in critic that triggers corrective feedback loops when confidence drops below learned thresholds.
@@ -31,22 +31,23 @@ Unlike traditional architectures that process information uniformly through stac
 
 UCGA models intelligence as a 5-tuple: $\mathcal{G} = (\mathcal{V},\; \mathcal{E},\; \mathbf{W},\; \mathcal{S},\; \mathbf{M})$
 
-- $\mathcal{V}$: Cognitive nodes (Perception, Memory, Reasoning, Planning, Evaluation, Correction, Balancer, Output).
+- $\mathcal{V}$: Intelligence layers (Perception, Cognitive Graph, Working Memory, Reasoning, Global Workspace, Executive Controller, Action).
 - $\mathcal{E}$: Directed edges encoding information flow.
 - $\mathbf{W}$: Learnable weight matrices.
 - $\mathcal{S}$: Internal cognitive state vectors.
 - $\mathbf{M}$: Persistent external memory bank.
 
-### Cognitive Loop (per timestep *t*)
+### AGI Cognitive Cycle
 
 ```text
-Input → Perceive → Retrieve Memory → Reason → Plan → Evaluate
-                                                       ↓
-                                              confidence < θ?
-                                              ↓ yes        ↓ no
-                                           Correct       (skip)
-                                              ↓
-                                           Balance → Output → Write Memory
+1. Perceive environment
+2. Update working memory
+3. Activate cognitive graph
+4. Perform reasoning
+5. Generate goals
+6. Plan actions
+7. Execute actions
+8. Learn and update knowledge graph
 ```
 
 ### Core Equations
@@ -66,16 +67,15 @@ $$h_{\text{corrected}} = g \odot f(h_{\text{plan}}, h_{\text{eval}}) + (1 - g) \
 
 ---
 
-## Current Development Status & Active Efforts
+## AGI Development Stage & Active Efforts
 
-We have successfully validated the architecture's foundational modules with an intelligence score validation system (ROS, LOS, GIB metrics). 
+UCGA is now transitioning from Cognitive Architecture Prototype to AGI-capable Cognitive System.
 
-**What we are doing right now (Phase 6 scale-up):**
-We are actively executing a major scaling training phase to increase the **UCGA Intelligence Score** from our baseline of ~0.20 to $\ge 0.60$ without changing the core architectural topology:
-- **Scaling up Capacity:** Increasing `state_dim` to 512, `memory_slots` to 256, `cognitive_steps` to 8, and `reasoning_steps` to 6.
-- **Improved Training Protocol:** Incorporating AdamW, cosine annealing schedulers, gradient clipping (`max_norm = 1.0`), and mixed precision (`torch.cuda.amp`) training.
-- **Curriculum Learning:** Sequentially training the scaled UCGA model across synthetic vectors, vision (CIFAR-10), text (AG News), and a combined multimodal dataset.
-- **Live Intelligence Monitoring:** Continuously tracking ROS (Reasoning), LOS (Learning), and GIB (General Intelligence Balance) convergence during this extended 300-epoch training phase.
+**Next milestones:**
+- Autonomous goal generation
+- Continuous self-learning
+- Scientific discovery automation
+- Real-world deployment
 
 ## Future Work and Roadmap
 
@@ -131,17 +131,16 @@ python utils/intelligence_dashboard.py
 
 ## Implementation Status
 
-| Component | Status |
+| Capability | Status |
 |-----------|--------|
-| CognitiveNode (base) | ✅ Complete |
-| PerceptionNode | ✅ Complete |
-| MemoryNode | ✅ Complete |
-| ReasoningNode | ✅ Complete |
-| PlanningNode | ✅ Complete |
-| EvaluationNode | ✅ Complete |
-| CorrectionNode | ✅ Complete |
-| BalancerNode | ✅ Complete |
-| OutputNode | ✅ Complete |
+| Perception | ✅ Complete |
+| Memory | ✅ Complete |
+| Reasoning | ✅ Complete |
+| Planning | ✅ Complete |
+| Executive Control | ✅ Implemented |
+| Action System | ✅ Implemented |
+| Self-learning | ✅ Implemented |
+| Knowledge Expansion | ✅ Implemented |
 | PersistentMemory | ✅ Complete |
 | TextEncoder (CNN & Transformer) | ✅ Complete |
 | ImageEncoder & VectorEncoder | ✅ Complete |
