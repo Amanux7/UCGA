@@ -165,7 +165,7 @@ UCGA/
 
 ### Installation
 ```bash
-git clone https://github.com/your-username/UCGA.git
+git clone https://github.com/Amanux7/UCGA.git
 cd UCGA
 pip install -r requirements.txt
 ```
@@ -250,3 +250,4 @@ If you use UCGA in your research, please cite:
 
 MIT License — Copyright (c) 2026 Aman Singh
 See [LICENSE](LICENSE) for details.
+
