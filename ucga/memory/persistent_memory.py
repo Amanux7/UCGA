@@ -88,26 +88,25 @@ class PersistentMemory(nn.Module):
             Data to store, shape ``(B, slot_dim)``.
         """
         B = content.size(0)
-        mem = self._expand_memory(B)
-        usage = self._expand_usage(B)
 
-        # Find least-used slot per batch element
-        _, idx = usage.min(dim=1)  # (B,)
+        # Process each batch element sequentially to update the globally shared memory
+        for b in range(B):
+            single_content = content[b : b + 1]  # shape (1, slot_dim)
 
-        gate = self.write_gate(content)                    # (B, D)
-        projected = self.write_proj(content)               # (B, D)
-        write_val = gate * projected
+            # Find least-used slot based on current global usage
+            _, idx = self.usage.min(dim=1)  # shape (1,)
 
-        # Scatter write — detach to prevent graph accumulation
-        # Cast to memory dtype for AMP compatibility (float16 → float32)
-        idx_exp = idx.unsqueeze(1).unsqueeze(2).expand(-1, 1, self.slot_dim)
-        mem.scatter_(1, idx_exp, write_val.detach().to(mem.dtype).unsqueeze(1))
+            gate = self.write_gate(single_content)                    # (1, D)
+            projected = self.write_proj(single_content)               # (1, D)
+            write_val = gate * projected
 
-        # Update usage
-        usage.scatter_(1, idx.unsqueeze(1), usage.gather(1, idx.unsqueeze(1)) + 1)
+            # Scatter write — detach to prevent graph accumulation
+            # Cast to memory dtype for AMP compatibility (float16 → float32)
+            idx_exp = idx.unsqueeze(1).unsqueeze(2).expand(-1, 1, self.slot_dim)
+            self.memory.scatter_(1, idx_exp, write_val.detach().to(self.memory.dtype).unsqueeze(1))
 
-        self.memory = mem[:1].detach()   # keep canonical shape, detach
-        self.usage = usage[:1].detach()
+            # Update usage
+            self.usage.scatter_(1, idx.unsqueeze(1), self.usage.gather(1, idx.unsqueeze(1)) + 1)
 
     # ------------------------------------------------------------------
     # Utility
